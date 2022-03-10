@@ -49,12 +49,15 @@ class Video:
 
     def generate_keyboard(self):
         """ Generate a list of InlineKeyboardButton of resolutions """
-        kb = []
-
-        for code, extension, resolution in self.formats:
-            kb.append([InlineKeyboardButton("{0}, {1}".format(extension, resolution),
-                                     callback_data="{} {}".format(code, self.link))]) # maybe callback_data can support a list or tuple?
-        return kb
+        return [
+            [
+                InlineKeyboardButton(
+                    "{0}, {1}".format(extension, resolution),
+                    callback_data="{} {}".format(code, self.link),
+                )
+            ]
+            for code, extension, resolution in self.formats
+        ]
 
     def download(self, resolution_code):
         cmd = "youtube-dl -f {0} {1}".format(resolution_code, self.link)
@@ -68,7 +71,7 @@ class Video:
         if os.path.getsize(self.file_name) > 50 * 1024 * 1023:
             os.system('split -b 49M "{0}" "{1}"'.format(self.file_name, self.file_name))
             os.remove(self.file_name)
-        return glob(escape(self.file_name) + '*')
+        return glob(f'{escape(self.file_name)}*')
 
     @contextmanager
     def send(self):
